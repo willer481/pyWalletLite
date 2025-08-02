@@ -1,5 +1,7 @@
-import sys
+import tkinter as tk
+from tkinter import messagebox, simpledialog
 import json
+from pin_utils import set_pin, load_pin
 
 wallet = {
     "balance": 0.0,
@@ -7,88 +9,101 @@ wallet = {
     "transactions": []
 }
 
-def add_transaction():
-    try:
-        amount = float(input("Amount (£): "))
-        reason = input("Reason: ")
-        wallet["balance"] += amount
-        wallet["transactions"].append((amount, reason))
-        print(f"✅ Added £{amount:.2f} for '{reason}'")
-    except ValueError:
-        print("❌ Please enter a valid number.")
-
-def view_balance():
-    print(f"\n💰 Balance: £{wallet['balance']:.2f}\n")
-
-def set_goal():
-    try:
-        new_goal = float(input("New savings goal (£): "))
-        wallet["goal"] = new_goal
-        print(f"🎯 Goal updated: £{new_goal:.2f}")
-    except ValueError:
-        print("❌ Please enter a valid number.")
-
-def progress_report():
-    percent = (wallet["balance"] / wallet["goal"]) * 100 if wallet["goal"] else 0
-    print(f"\n📊 Progress: {percent:.1f}% of £{wallet['goal']:.2f}\n")
-
-def save_wallet(filename="wallet.json"):
-    with open(filename, "w") as f:
-        json.dump(wallet, f)
-    print("💾 Wallet saved!")
-
 def load_wallet(filename="wallet.json"):
     global wallet
     try:
         with open(filename, "r") as f:
             wallet = json.load(f)
-        print("📂 Wallet loaded!")
     except FileNotFoundError:
-        print("⚠️ No saved wallet found. Starting fresh.")
+        pass
 
-def view_transactions():
-    print("\n📜 Transaction History:")
-    if not wallet["transactions"]:
-        print("No transactions yet.")
+def save_wallet(filename="wallet.json"):
+    with open(filename, "w") as f:
+        json.dump(wallet, f)
+
+def unlock_wallet():
+    stored_pin = load_pin()
+    if stored_pin is None:
+        set_pin()
+        save_wallet()
+        launch_wallet()
     else:
-        for i, (amount, reason) in enumerate(wallet["transactions"], start=1):
-            print(f"{i}. £{amount:.2f} – {reason}")
-    print()
+        pin_window = tk.Tk()
+        pin_window.title("🔐 Unlock PyWallet")
 
+        tk.Label(pin_window, text="Enter your PIN:").pack(pady=5)
+        pin_entry = tk.Entry(pin_window, show="*", width=20)
+        pin_entry.pack(pady=5)
 
+        def verify_pin():
+            if pin_entry.get() == stored_pin:
+                pin_window.destroy()
+                launch_wallet()
+            else:
+                messagebox.showerror("Wrong PIN", "❌ Incorrect PIN!")
+
+        tk.Button(pin_window, text="Login", command=verify_pin).pack(pady=5)
+        pin_window.mainloop()
+
+def launch_wallet():
+    root = tk.Tk()
+    root.title("🐍 PyWallet Lite")
+
+    def update_display():
+        balance_var.set(f"£{wallet['balance']:.2f}")
+        goal_var.set(f"£{wallet['goal']:.2f}")
+        progress = (wallet["balance"] / wallet["goal"]) * 100 if wallet["goal"] else 0
+        progress_var.set(f"{progress:.1f}%")
+        tx_list.delete(0, tk.END)
+        for amt, reason in wallet["transactions"]:
+            tx_list.insert(tk.END, f"£{amt:.2f} – {reason}")
+
+    def add_tx():
+        try:
+            amount = float(simpledialog.askstring("Add Transaction", "Amount (£):"))
+            reason = simpledialog.askstring("Add Transaction", "Reason:")
+            wallet["balance"] += amount
+            wallet["transactions"].append((amount, reason))
+            save_wallet()
+            update_display()
+        except:
+            messagebox.showerror("Error", "❌ Enter a valid amount.")
+
+    def set_new_goal():
+        try:
+            new_goal = float(simpledialog.askstring("Set Goal", "New savings goal (£):"))
+            wallet["goal"] = new_goal
+            save_wallet()
+            update_display()
+        except:
+            messagebox.showerror("Error", "❌ Enter a valid number.")
+
+    # 💡 UI Elements
+    balance_var = tk.StringVar()
+    goal_var = tk.StringVar()
+    progress_var = tk.StringVar()
+
+    tk.Label(root, text="💰 Balance:").pack()
+    tk.Label(root, textvariable=balance_var, font=("Arial", 14)).pack()
+
+    tk.Label(root, text="🎯 Goal:").pack()
+    tk.Label(root, textvariable=goal_var, font=("Arial", 14)).pack()
+
+    tk.Label(root, text="📊 Progress:").pack()
+    tk.Label(root, textvariable=progress_var, font=("Arial", 14)).pack(pady=10)
+
+    tk.Button(root, text="➕ Add Transaction", width=25, command=add_tx).pack(pady=3)
+    tk.Button(root, text="🎯 Set New Goal", width=25, command=set_new_goal).pack(pady=3)
+    tk.Button(root, text="📂 Save Wallet", width=25, command=save_wallet).pack(pady=3)
+    tk.Button(root, text="🚪 Exit", width=25, command=root.destroy).pack(pady=3)
+
+    tk.Label(root, text="\n📜 Transaction History").pack()
+    tx_list = tk.Listbox(root, width=50)
+    tx_list.pack()
+
+    update_display()
+    root.mainloop()
+
+# 🚀 Start App
 load_wallet()
-
-def main_menu():
-    while True:
-        print("""
-╔═══════════════════════════╗
-║      🐍 PyWallet Lite      ║
-╠═══════════════════════════╣
-║ 1. Add Transaction        ║
-║ 2. View Balance           ║
-║ 3. Set Savings Goal       ║
-║ 4. Show Progress Report   ║
-║ 5. Exit                   ║
-║ 6. View Transactions      ║
-╚═══════════════════════════╝
-        """)
-        choice = input("Choose an option (1-5): ")
-        if choice == '1':
-            add_transaction()
-            save_wallet()
-        elif choice == '2':
-            view_balance()
-        elif choice == '3':
-            set_goal()
-            save_wallet()
-        elif choice == '4':
-            progress_report()
-        elif choice == '5':
-            print("👋 Exiting PyWallet. Keep saving smart!")
-            sys.exit()
-        elif choice == '6':
-            view_transactions()
-        else:
-            print("❌ Invalid choice. Try again.\n")
-
-main_menu()
+unlock_wallet()

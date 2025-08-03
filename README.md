@@ -21,6 +21,11 @@ If you enjoy this project, consider supporting me on Ko-fi 💛
 - 🐙 [GitHub](https://github.com/willer481)
 - 📺 [Youtube](https://www.youtube.com/@Rox_Playz_Blox)
 
+## 📄 License
+
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+
+
 ---
 
 ## 🚀 Getting Started

@@ -11,12 +11,6 @@
 - 💾 Saves and loads data using JSON
 - 🧮 Lightweight and easy to run — no dependencies
 
----
-
-## 🚀 Getting Started
-
-### 1. Clone the Repository
-
 ## ☕ Support Me on Ko-fi
 
 If you enjoy this project, consider supporting me on Ko-fi 💛  
@@ -27,6 +21,11 @@ If you enjoy this project, consider supporting me on Ko-fi 💛
 - 🐙 [GitHub](https://github.com/willer481)
 - 📺 [Youtube](https://www.youtube.com/@Rox_Playz_Blox)
 
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/willer481/pyWalletLite.git

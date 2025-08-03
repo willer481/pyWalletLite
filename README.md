@@ -17,5 +17,16 @@
 
 ### 1. Clone the Repository
 
+## ☕ Support Me on Ko-fi
+
+If you enjoy this project, consider supporting me on Ko-fi 💛  
+👉 [ko-fi.com/willem67762](https://ko-fi.com/willem67762#payment-widget)
+
+## 📢 Follow Me
+
+- 🐙 [GitHub](https://github.com/willer481)
+- 📺 [Youtube](https://www.youtube.com/@Rox_Playz_Blox)
+
+
 ```bash
 git clone https://github.com/willer481/pyWalletLite.git
